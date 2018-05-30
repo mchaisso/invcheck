@@ -1,0 +1,29 @@
+Installation:
+  This requires: samtools-0.1.18+, and blasr 1.MC.rc39+ (github.com/mchaisso/blasr).
+
+Running:
+
+ Usage: screenInversions sam genome output 
+   -j (int) Use n cores.
+   -f   Sam is fofn of sam files.
+   -w (int) Expand reference by window.
+   -r   Allow reverse complement.
+   -d   Make dotplot
+   -k (int) Use k for matching ( k <= 15). 
+   --noClip  Do not clip
+
+
+The typical usage for screening ~50kbp assembled contigs is:
+
+samtools view reads.bam | \
+  screenInversions /dev/stdin genome.fasta inversions.table \
+   -w 5000 \
+   -r \
+   --noClip \
+   -j 8
+
+
+The output should be merged:
+
+bedtools sort -i inversions.table | bedtools merge -n
+
