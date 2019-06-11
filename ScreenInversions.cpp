@@ -85,7 +85,7 @@ void ScreenInversions() {
 		int additionalLength = 0;
 
 		if (chromMap.find(chrom) == chromMap.end()) {
-			cerr << "skipping:" << readName << " " << chrom << endl;
+			cerr << "Not found, skipping:" << readName << " " << chrom << endl;
 			continue;
 		}
 		if (pos + window + tLen > chromMap[chrom]->length) {
@@ -111,8 +111,8 @@ void ScreenInversions() {
 		while (cigarStrm) {
 			int l;
 			char o;
-
-			if ( (cigarStrm >> l >> o) == 0) {
+			cigarStrm >> l >> o;
+			if ( cigarStrm.good() == false ) {
 				break;
 			}
 			lens.push_back(l);
@@ -201,44 +201,44 @@ void ScreenInversions() {
 				tableOut << chrom << "\t" << pos + invCoords[2] << "\t" << pos + invCoords[3] + wordSize << "\t" << readName << "\t" << invCoords[1]-invCoords[0] << "\t" << invCoords[0] << "\t" << invCoords[1] << endl; 
 				sem_post(&semaphores.writer);
 			}
-		}
 
-		if (makeDotplot) {
 
-			stringstream plotNameStrm;
-			size_t pos = readName.find("/");
-			string readPrefix;
-			if (pos != readName.npos) {
-				readPrefix = readName.substr(0, pos);
-			}
-			plotNameStrm << "dotplots/" << readPrefix << ".dotplot";
+			if (makeDotplot) {
+
+				stringstream plotNameStrm;
+				size_t pos = readName.find("/");
+				string readPrefix;
+				if (pos != readName.npos) {
+					readPrefix = readName.substr(0, pos);
+				}
+				plotNameStrm << "dotplots/" << readPrefix << ".dotplot";
 					
-			string plotName = plotNameStrm.str();
-			cerr << "creating dotplot " << plotName << endl;
-			ofstream dotPlotOutFile(plotName.c_str());
-			int f;
-			for (f = 0; f < allFragments.size(); f++) {
-				if (allFragments[f].strand == 0) {
-					dotPlotOutFile << allFragments[f].x << "\t" << allFragments[f].y << "\t" << allFragments[f].length << "\t" << 0 << "\t" << 0 << endl;
+				string plotName = plotNameStrm.str();
+				cerr << "creating dotplot " << plotName << endl;
+				ofstream dotPlotOutFile(plotName.c_str());
+				int f;
+				for (f = 0; f < allFragments.size(); f++) {
+					if (allFragments[f].strand == 0) {
+						dotPlotOutFile << allFragments[f].x << "\t" << allFragments[f].y << "\t" << allFragments[f].length << "\t" << 0 << "\t" << 0 << endl;
+					}
+					else {
+						dotPlotOutFile << query.length - allFragments[f].x - allFragments[f].length << "\t" << allFragments[f].y << "\t" << allFragments[f].length << "\t" << 1 << "\t" << 1 << endl;
+					}
 				}
-				else {
-					dotPlotOutFile << query.length - allFragments[f].x - allFragments[f].length << "\t" << allFragments[f].y << "\t" << allFragments[f].length << "\t" << 1 << "\t" << 1 << endl;
-				}
-			}
-			dotPlotOutFile.close();
-			plotNameStrm.str(""); plotNameStrm.clear();
-			plotNameStrm << "dotplots/" << readPrefix << ".boxes";
+				dotPlotOutFile.close();
+				plotNameStrm.str(""); plotNameStrm.clear();
+				plotNameStrm << "dotplots/" << readPrefix << ".boxes";
 
-			plotName = plotNameStrm.str();
-			cerr << "creating dotplot " << plotName << endl;
-			dotPlotOutFile.open(plotName.c_str());
-			int b;
-			for (b = 0; b < boxes.size(); b+=4) {
-				dotPlotOutFile << boxes[b] << "\t" << boxes[b+1] << "\t" << boxes[b+2] << "\t" << boxes[b+3] << "\t" << "1"<<endl;
+				plotName = plotNameStrm.str();
+				cerr << "creating dotplot " << plotName << endl;
+				dotPlotOutFile.open(plotName.c_str());
+				int b;
+				for (b = 0; b < boxes.size(); b+=4) {
+					dotPlotOutFile << boxes[b] << "\t" << boxes[b+1] << "\t" << boxes[b+2] << "\t" << boxes[b+3] << "\t" << "1"<<endl;
+				}
+				dotPlotOutFile.close();
 			}
-			dotPlotOutFile.close();
-		}
-		
+		}		
 		++seqIndex;
 		if (seqIndex % 1000 ==0 ) {
 			cerr << "processed " << seqIndex << endl;

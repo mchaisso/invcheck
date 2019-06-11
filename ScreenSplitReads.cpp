@@ -1,4 +1,4 @@
-#include "sam.h"
+#include "samtools/sam.h"
 #include "stdlib.h"
 #include <vector>
 #include <string>

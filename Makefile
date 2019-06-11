@@ -1,27 +1,15 @@
-SAMTOOLS=htslib
-SAMTOOLS=$(HOME)/software/samtools-1.2
+HTSLIB=htslib
+SAMTOOLS=samtools
 BLASR=blasr/common
 
 ST_OPS=-I $(SAMTOOLS)  -L $(SAMTOOLS)  -lhts -lm -lz
-all: testInversionAlign sdplite screenInversions screenSplitReads
+all:  screenInversions
 
 htslib/libhts.a:
-	cd htslib && make
+	cd htslib && autoheader && autoconf && ./configure --disable-lzma --disable-bz2 && make -j 8 
 
-realignReverse: RealignReverse.cpp htslib/libhts.a
-	g++ RealignReverse.cpp -I $(BLASR)  $(ST_OPS) -o $@ 
-
-
-testInversionAlign: TestInversionAlign.cpp InversionAlign.h
-	g++ -O3 TestInversionAlign.cpp -o $@ -I $(BLASR)
-
+samtools/samtools:
+	cd samtools && autoheader && autoconf && ./configure --disable-lzma --disable-bz2 && make -j 8 
 
 screenInversions: ScreenInversions.cpp InversionAlign.h
 	g++ -O3 $< -o $@ -I $(BLASR) -lpthread
-
-
-screenSplitReads: ScreenSplitReads.cpp InversionAlign.h
-	g++ -O3 $< -o $@ -I $(BLASR) -lpthread -I $(SAMTOOLS) -I $(SAMTOOLS)/htslib-1.2.1  -L $(SAMTOOLS) -lbam  -lz -L$(SAMTOOLS)/htslib-1.2.1 -l hts
-
-sdplite: TestSDPAlignLite.cpp InversionAlign.h
-	g++ -g $< -o $@ -I $(BLASR)
