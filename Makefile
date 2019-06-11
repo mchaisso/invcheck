@@ -1,3 +1,4 @@
+
 HTSLIB=htslib
 SAMTOOLS=samtools
 BLASR=blasr/common
