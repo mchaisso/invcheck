@@ -56,8 +56,9 @@ class StrandedFragment: public Fragment {
   StrandedFragment(const DNALength &xp, const DNALength &yp) :Fragment(xp,yp) {
 	}
 	StrandedFragment &operator=(const StrandedFragment &rhs) {
-  *((Fragment*)this) = (Fragment&)rhs;
+		*((Fragment*)this) = (Fragment&)rhs;
     strand = rhs.strand;
+		return *this;
   }
 };
 
